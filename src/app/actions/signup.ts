@@ -17,7 +17,15 @@ const onboardingSchema = z.object({
     .min(2, "Slug must be at least 2 chars")
     .max(32, "Slug must be <= 32 chars")
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers and dashes"),
-  email: z.preprocess((v) => String(v || "").trim().toLowerCase(), z.string().email("Enter a valid email")),
+  email: z.preprocess(
+    (v) =>
+      String(v || "")
+        .normalize("NFKC")
+        .replace(/[\u200B-\u200D\uFEFF]/g, "") // zero-width chars
+        .replace(/\s+/g, "") // all whitespace
+        .toLowerCase(),
+    z.string().email("Enter a valid email")
+  ),
   password: z
     .string()
     .min(PASSWORD_MIN_LENGTH, `Password must be at least ${PASSWORD_MIN_LENGTH} characters`)

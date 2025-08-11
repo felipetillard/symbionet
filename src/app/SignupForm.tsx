@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useCallback, useMemo, useState, useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { signUpAndCreateTenantAction } from "./actions/signup";
 
 type SignupState = {
@@ -35,7 +35,7 @@ function passwordStrength(pw: string) {
 }
 
 export default function SignupForm() {
-  const [state, formAction] = useFormState<SignupState, FormData>(
+  const [state, formAction] = useActionState<SignupState, FormData>(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     signUpAndCreateTenantAction as any,
     initialState
@@ -56,6 +56,15 @@ export default function SignupForm() {
       .replace(/^-+/, "")
       .replace(/-+$/, "");
     setSlug(cleaned);
+  }, []);
+
+  const onEmailChange = useCallback((v: string) => {
+    const normalized = v
+      .normalize("NFKC")
+      .replace(/[\u200B-\u200D\uFEFF]/g, "") // zero-width
+      .replace(/\s+/g, "")
+      .toLowerCase();
+    setEmail(normalized);
   }, []);
 
   const strength = useMemo(() => passwordStrength(password), [password]);
@@ -113,7 +122,7 @@ export default function SignupForm() {
             type="email"
             inputMode="email"
             value={email}
-            onChange={(e)=>setEmail(e.target.value)}
+            onChange={(e)=>onEmailChange(e.target.value)}
             placeholder="you@acme.com"
             className="form-input w-full rounded-lg bg-white/10 text-white h-12 p-4 border-none placeholder:text-white/50"
             required
