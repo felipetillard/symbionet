@@ -1,29 +1,71 @@
 "use client";
-import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 
-// We call a server action exported from a separate file
-import { addProductAction } from "./server-actions";
+// We call server actions exported from a separate file
+import { addProductAction, updateProductAction, getProductAction } from "./server-actions";
+
+type Product = {
+  id: string;
+  name: string;
+  brand: string;
+  size: string;
+  code: string;
+  description: string;
+  details: string;
+  extras: string;
+  price: number;
+  inventory_count: number;
+  images: Array<{ url: string; path: string }>;
+  status: string;
+  created_at: string;
+};
 
 export default function AddProductPage() {
   const params = useParams<{ tenant: string }>();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const tenant = params?.tenant as string;
+  const productId = searchParams.get("id");
+  const isEditing = !!productId;
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(isEditing);
+  const [product, setProduct] = useState<Product | null>(null);
+
+  // Load product data if editing
+  useEffect(() => {
+    if (isEditing && productId) {
+      setLoading(true);
+      getProductAction(tenant, productId)
+        .then((data: Product) => {
+          setProduct(data);
+          setLoading(false);
+        })
+        .catch((err: Error) => {
+          setError(err.message || "Failed to load product");
+          setLoading(false);
+        });
+    }
+  }, [isEditing, productId, tenant]);
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
     setError(null);
     try {
-      await addProductAction(tenant, formData);
+      if (isEditing && productId) {
+        await updateProductAction(tenant, productId, formData);
+      } else {
+        await addProductAction(tenant, formData);
+      }
       router.push(`/t/${tenant}/admin/products`);
     } catch (error) {
-      console.error('Error adding product:', error);
-      setError(error instanceof Error ? error.message : 'Failed to create product');
-      setIsSubmitting(false); // Only reset on error
+      console.error('Error saving product:', error);
+      setError(error instanceof Error ? error.message : 'Failed to save product');
+      setIsSubmitting(false);
     }
   };
 
@@ -51,6 +93,17 @@ export default function AddProductPage() {
     setSelectedFiles(files);
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#0b1224] to-[#0a0f1f] text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+          <p>Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#0b1224] to-[#0a0f1f] text-white">
       {/* Header */}
@@ -64,7 +117,9 @@ export default function AddProductPage() {
               <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/>
             </svg>
           </button>
-          <h1 className="text-xl font-semibold">Add New Product</h1>
+          <h1 className="text-xl font-semibold">
+            {isEditing ? "Edit Product" : "Add New Product"}
+          </h1>
           <div className="w-10" />
         </div>
       </div>
@@ -92,6 +147,7 @@ export default function AddProductPage() {
                 <input 
                   name="name" 
                   placeholder="Enter product name"
+                  defaultValue={product?.name || ""}
                   required
                   className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
@@ -102,6 +158,7 @@ export default function AddProductPage() {
                 <input 
                   name="brand" 
                   placeholder="Brand name"
+                  defaultValue={product?.brand || ""}
                   className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
@@ -111,6 +168,7 @@ export default function AddProductPage() {
                 <input 
                   name="size" 
                   placeholder="Product size"
+                  defaultValue={product?.size || ""}
                   className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
@@ -120,6 +178,7 @@ export default function AddProductPage() {
                 <input 
                   name="code" 
                   placeholder="SKU or product code"
+                  defaultValue={product?.code || ""}
                   className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
@@ -133,7 +192,7 @@ export default function AddProductPage() {
                     type="number" 
                     step="0.01"
                     min="0"
-                    defaultValue="0"
+                    defaultValue={product?.price || "0"}
                     placeholder="0.00"
                     required
                     className="w-full h-12 pl-8 pr-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -147,7 +206,7 @@ export default function AddProductPage() {
                   name="inventory_count" 
                   type="number"
                   min="0"
-                  defaultValue="0"
+                  defaultValue={product?.inventory_count || "0"}
                   placeholder="Available quantity"
                   className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
@@ -168,6 +227,7 @@ export default function AddProductPage() {
                 <textarea 
                   name="description" 
                   placeholder="Describe your product..."
+                  defaultValue={product?.description || ""}
                   rows={4}
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                 />
@@ -178,6 +238,7 @@ export default function AddProductPage() {
                 <textarea 
                   name="details" 
                   placeholder="Additional details, specifications, features..."
+                  defaultValue={product?.details || ""}
                   rows={4}
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                 />
@@ -188,6 +249,7 @@ export default function AddProductPage() {
                 <textarea 
                   name="extras" 
                   placeholder="Care instructions, warranty, additional information..."
+                  defaultValue={product?.extras || ""}
                   rows={3}
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                 />
@@ -201,6 +263,27 @@ export default function AddProductPage() {
               <div className="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
               Product Images
             </h2>
+
+            {/* Show existing images if editing */}
+            {isEditing && product?.images && product.images.length > 0 && (
+              <div className="mb-6">
+                <p className="text-sm text-white/70 mb-3">Current Images:</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {product.images.map((image, index) => (
+                    <div key={index} className="aspect-square rounded-lg overflow-hidden bg-white/5">
+                      <img 
+                        src={image.url} 
+                        alt={`Product image ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-white/50 mt-2">
+                  Upload new images below to replace these
+                </p>
+              </div>
+            )}
             
             <div 
               className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all ${
@@ -231,7 +314,12 @@ export default function AddProductPage() {
                 
                 <div>
                   <p className="text-lg font-medium text-white">
-                    {selectedFiles.length > 0 ? `${selectedFiles.length} file(s) selected` : 'Upload product images'}
+                    {selectedFiles.length > 0 
+                      ? `${selectedFiles.length} file(s) selected` 
+                      : isEditing 
+                        ? 'Upload new images (optional)'
+                        : 'Upload product images'
+                    }
                   </p>
                   <p className="text-sm text-white/60 mt-1">
                     Drag and drop images here, or click to browse
@@ -275,10 +363,10 @@ export default function AddProductPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Adding Product...
+                  {isEditing ? "Updating Product..." : "Adding Product..."}
                 </>
               ) : (
-                'Add Product'
+                isEditing ? "Update Product" : "Add Product"
               )}
             </button>
           </div>
