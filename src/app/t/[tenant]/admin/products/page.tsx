@@ -54,19 +54,45 @@ export default async function ProductsAdminPage({ params, searchParams }: { para
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#0b1224] to-[#0a0f1f] text-white px-6 py-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Products</h1>
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-white">
+              Products
+            </h1>
+            <p className="text-white/60 mt-1">Manage your inventory and track stock levels</p>
+          </div>
           <a
             href={`/t/${tenantSlug}/admin/products/new`}
-            className="inline-flex items-center justify-center h-10 px-4 rounded-lg bg-[#1e3c6c] hover:bg-[#244a84] transition text-white text-sm font-bold"
+            className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 transition-all duration-200 text-white font-medium"
           >
-            + Add new
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Product
           </a>
         </div>
 
-        <div className="bg-white/5 backdrop-blur rounded-2xl p-4 md:p-6 border border-white/10 shadow-2xl">
-          <ProductsList products={(products ?? []) as unknown as ProductRow[]} tenantSlug={tenantSlug} />
+        {/* Products Container */}
+        <div className="bg-white/5 backdrop-blur rounded-3xl p-6 border border-white/10">
+          {products && products.length > 0 ? (
+            <div>
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <span className="text-white font-medium">
+                    {products.length} Product{products.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div className="text-sm text-white/60">
+                  Total Stock: {products.reduce((sum, p) => sum + (p.inventory_count || 0), 0)} units
+                </div>
+              </div>
+              <ProductsList products={(products ?? []) as unknown as ProductRow[]} tenantSlug={tenantSlug} />
+            </div>
+          ) : (
+            <ProductsList products={(products ?? []) as unknown as ProductRow[]} tenantSlug={tenantSlug} />
+          )}
         </div>
       </div>
     </div>
