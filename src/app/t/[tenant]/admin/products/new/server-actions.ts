@@ -419,3 +419,60 @@ export async function cleanupProductImagesAction(tenantSlug: string, productId: 
   revalidatePath(`/t/${tenantSlug}/admin/products`);
   return { success: true, cleanedCount: cleanedImages.length };
 } 
+
+export async function reduceInventoryAction(tenantSlug: string, productId: string) {
+  const supabase = await createSupabaseServerClient();
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    redirect(`/auth/login?next=/t/${tenantSlug}/admin/products`);
+  }
+
+  // Get tenant and verify user has access
+  const { data: tenant } = await supabase.from("tenants").select("id, slug").eq("slug", tenantSlug).single();
+  if (!tenant) throw new Error("Tenant not found");
+
+  // Check if user is a member of this tenant
+  const { data: membership } = await supabase
+    .from("tenant_members")
+    .select("role")
+    .eq("tenant_id", tenant.id)
+    .eq("user_id", user.id)
+    .single();
+  
+  if (!membership) {
+    throw new Error("You don't have permission to update products for this tenant");
+  }
+
+  // Get current product to check inventory
+  const { data: product } = await supabase
+    .from("products")
+    .select("inventory_count, name")
+    .eq("id", productId)
+    .eq("tenant_id", tenant.id)
+    .single();
+
+  if (!product) {
+    throw new Error("Product not found");
+  }
+
+  // Calculate new inventory (don't go below 0)
+  const currentInventory = product.inventory_count || 0;
+  const newInventory = Math.max(0, currentInventory - 1);
+  
+  console.log(`Reducing inventory for product "${product.name}": ${currentInventory} -> ${newInventory}`);
+
+  // Update the product inventory
+  const { error: updateError } = await supabase
+    .from("products")
+    .update({ inventory_count: newInventory })
+    .eq("id", productId)
+    .eq("tenant_id", tenant.id);
+
+  if (updateError) {
+    throw new Error(`Failed to reduce inventory: ${updateError.message}`);
+  }
+
+  revalidatePath(`/t/${tenantSlug}/admin/products`);
+  return { success: true, newInventory, previousInventory: currentInventory };
+} 

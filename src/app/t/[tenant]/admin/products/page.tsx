@@ -9,6 +9,7 @@ type ProductRow = {
   name: string;
   price: number | string;
   images: Array<{ url: string; path?: string }> | null;
+  inventory_count: number;
   created_at: string;
 };
 
