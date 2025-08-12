@@ -107,6 +107,10 @@ create policy if not exists "admins manage orders" on public.orders for all usin
 
 -- Manage tenant_members only by service role (no policies) or explicit admin function
 
+-- Allow users to read their own tenant memberships
+create policy if not exists "users can read own memberships" on public.tenant_members 
+for select using (auth.uid() = user_id);
+
 -- Helpful function to get tenant by slug
 create or replace function public.get_tenant_id_by_slug(slug_input text)
 returns uuid language sql stable as $$

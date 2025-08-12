@@ -9,7 +9,6 @@ function LoginForm() {
   const supabase = createSupabaseBrowserClient();
   const router = useRouter();
   const params = useSearchParams();
-  const baseNext = params.get("next") || "/onboarding";
   const prefillSlug = params.get("prefillSlug");
   const prefillName = params.get("prefillName");
   const [email, setEmail] = useState("");
@@ -17,22 +16,56 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(params.get("error"));
   const [loading, setLoading] = useState(false);
 
-  function buildNextUrl() {
-    if (!prefillSlug && !prefillName) return baseNext;
-    const url = new URL(baseNext, typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
-    if (prefillSlug) url.searchParams.set("prefillSlug", prefillSlug);
-    if (prefillName) url.searchParams.set("prefillName", prefillName);
-    return url.pathname + (url.search ? url.search : "");
-  }
-
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) setError(error.message);
-    else router.replace(buildNextUrl());
+    
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
+    }
+
+    // Get user data after successful login
+    const { data: auth } = await supabase.auth.getUser();
+    
+    if (!auth.user) {
+      setError("Authentication failed");
+      setLoading(false);
+      return;
+    }
+
+    // Check if user has a tenant membership
+    const { data: membership } = await supabase
+      .from("tenant_members")
+      .select("tenant_id")
+      .eq("user_id", auth.user.id)
+      .limit(1)
+      .maybeSingle();
+
+    if (membership?.tenant_id) {
+      // User has membership, get tenant slug and redirect to admin/products
+      const { data: tenant } = await supabase
+        .from("tenants")
+        .select("slug")
+        .eq("id", membership.tenant_id)
+        .maybeSingle();
+
+      if (tenant?.slug) {
+        router.replace(`/t/${tenant.slug}/admin/products`);
+        return;
+      }
+    }
+
+    // No membership yet, redirect to onboarding with prefill data if available
+    const onboardingUrl = new URL("/onboarding", window.location.origin);
+    if (prefillSlug) onboardingUrl.searchParams.set("prefillSlug", prefillSlug);
+    if (prefillName) onboardingUrl.searchParams.set("prefillName", prefillName);
+    
+    router.replace(onboardingUrl.pathname + onboardingUrl.search);
   }
 
   return (
@@ -46,7 +79,7 @@ function LoginForm() {
         )}
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm mb-1 text:white/80">Email</label>
+            <label className="block text-sm mb-1 text-white/80">Email</label>
             <input
               value={email}
               onChange={(e)=>setEmail(e.target.value)}
@@ -63,7 +96,7 @@ function LoginForm() {
               value={password}
               onChange={(e)=>setPassword(e.target.value)}
               type="password"
-              className="form-input w-full h-12 rounded-lg bg:white/10 text-white p-4 border-none placeholder:text-white/50"
+              className="form-input w-full h-12 rounded-lg bg-white/10 text-white p-4 border-none placeholder:text-white/50"
               placeholder="••••••••"
               autoComplete="current-password"
               required
