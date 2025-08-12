@@ -61,6 +61,7 @@ export default function AddProductPage() {
       } else {
         await addProductAction(tenant, formData);
       }
+      // Don't set isSubmitting to false here since we're navigating away
       router.push(`/t/${tenant}/admin/products`);
     } catch (error) {
       console.error('Error saving product:', error);
@@ -93,6 +94,17 @@ export default function AddProductPage() {
     setSelectedFiles(files);
   };
 
+  // Clean up object URLs when component unmounts or files change
+  useEffect(() => {
+    return () => {
+      selectedFiles.forEach(file => {
+        if (file instanceof File) {
+          URL.revokeObjectURL(URL.createObjectURL(file));
+        }
+      });
+    };
+  }, [selectedFiles]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#0b1224] to-[#0a0f1f] text-white flex items-center justify-center">
@@ -106,6 +118,29 @@ export default function AddProductPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#0b1224] to-[#0a0f1f] text-white">
+      {/* Loading Overlay */}
+      {isSubmitting && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white/10 backdrop-blur rounded-2xl p-8 border border-white/20 text-center">
+            <div className="w-16 h-16 mx-auto mb-4">
+              <svg className="animate-spin w-full h-full text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">
+              {isEditing ? 'Updating Product...' : 'Creating Product...'}
+            </h3>
+            <p className="text-white/70 text-sm">
+              {selectedFiles.length > 0 
+                ? `Uploading ${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''} and saving product details`
+                : 'Saving product details'
+              }
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="sticky top-0 z-10 bg-[#0f172a]/80 backdrop-blur-sm border-b border-white/10">
         <div className="flex items-center justify-between px-6 py-4">
@@ -144,42 +179,46 @@ export default function AddProductPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-white/80 mb-2">Product Name *</label>
-                <input 
-                  name="name" 
+                <input
+                  name="name"
                   placeholder="Enter product name"
                   defaultValue={product?.name || ""}
+                  disabled={isSubmitting}
                   required
-                  className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-2">Brand</label>
-                <input 
-                  name="brand" 
-                  placeholder="Brand name"
+                <input
+                  name="brand"
+                  placeholder="Enter brand"
                   defaultValue={product?.brand || ""}
-                  className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  disabled={isSubmitting}
+                  className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-2">Size</label>
-                <input 
-                  name="size" 
-                  placeholder="Product size"
+                <input
+                  name="size"
+                  placeholder="Enter size"
                   defaultValue={product?.size || ""}
-                  className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  disabled={isSubmitting}
+                  className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-2">Product Code</label>
-                <input 
-                  name="code" 
-                  placeholder="SKU or product code"
+                <input
+                  name="code"
+                  placeholder="Enter product code"
                   defaultValue={product?.code || ""}
-                  className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  disabled={isSubmitting}
+                  className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
               
@@ -187,28 +226,30 @@ export default function AddProductPage() {
                 <label className="block text-sm font-medium text-white/80 mb-2">Price *</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/50">$</span>
-                  <input 
-                    name="price" 
-                    type="number" 
+                  <input
+                    name="price"
+                    type="number"
                     step="0.01"
                     min="0"
-                    defaultValue={product?.price || "0"}
                     placeholder="0.00"
+                    defaultValue={product?.price || ""}
+                    disabled={isSubmitting}
                     required
-                    className="w-full h-12 pl-8 pr-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full h-12 pl-8 pr-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-2">Inventory Count</label>
-                <input 
-                  name="inventory_count" 
+                <input
+                  name="inventory_count"
                   type="number"
                   min="0"
-                  defaultValue={product?.inventory_count || "0"}
-                  placeholder="Available quantity"
-                  className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="0"
+                  defaultValue={product?.inventory_count || ""}
+                  disabled={isSubmitting}
+                  className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -224,13 +265,14 @@ export default function AddProductPage() {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-2">Description</label>
-                <textarea 
-                  name="description" 
-                  placeholder="Describe your product..."
-                  defaultValue={product?.description || ""}
-                  rows={4}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                />
+                                  <textarea
+                    name="description"
+                    placeholder="Describe your product..."
+                    defaultValue={product?.description || ""}
+                    disabled={isSubmitting}
+                    rows={4}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
               </div>
               
               <div>
@@ -239,8 +281,9 @@ export default function AddProductPage() {
                   name="details" 
                   placeholder="Additional details, specifications, features..."
                   defaultValue={product?.details || ""}
+                  disabled={isSubmitting}
                   rows={4}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
               
@@ -250,8 +293,9 @@ export default function AddProductPage() {
                   name="extras" 
                   placeholder="Care instructions, warranty, additional information..."
                   defaultValue={product?.extras || ""}
+                  disabled={isSubmitting}
                   rows={3}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -267,20 +311,29 @@ export default function AddProductPage() {
             {/* Show existing images if editing */}
             {isEditing && product?.images && product.images.length > 0 && (
               <div className="mb-6">
-                <p className="text-sm text-white/70 mb-3">Current Images:</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <p className="text-sm text-white/70 mb-3">Current Images ({product.images.length}):</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   {product.images.map((image, index) => (
-                    <div key={index} className="aspect-square rounded-lg overflow-hidden bg-white/5">
-                      <img 
-                        src={image.url} 
-                        alt={`Product image ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
+                    <div key={index} className="relative group">
+                      <div className="aspect-square rounded-lg overflow-hidden bg-white/5">
+                        <img 
+                          src={image.url} 
+                          alt={`Product image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="bg-black/50 rounded-full p-1">
+                          <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-white/50 mt-2">
-                  Upload new images below to replace these
+                <p className="text-xs text-white/50">
+                  Upload new images below to add more images to your product
                 </p>
               </div>
             )}
@@ -301,7 +354,8 @@ export default function AddProductPage() {
                 name="images" 
                 multiple 
                 accept="image/*"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                disabled={isSubmitting}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 disabled:cursor-not-allowed" 
                 onChange={handleFileSelect}
               />
               
@@ -315,17 +369,17 @@ export default function AddProductPage() {
                 <div>
                   <p className="text-lg font-medium text-white">
                     {selectedFiles.length > 0 
-                      ? `${selectedFiles.length} file(s) selected` 
+                      ? `${selectedFiles.length} new file(s) selected` 
                       : isEditing 
-                        ? 'Upload new images (optional)'
-                        : 'Upload product images'
+                        ? 'Add more images (optional)'
+                        : 'Upload product images (multiple files supported)'
                     }
                   </p>
                   <p className="text-sm text-white/60 mt-1">
-                    Drag and drop images here, or click to browse
+                    Drag and drop multiple images here, or click to browse
                   </p>
                   <p className="text-xs text-white/40 mt-2">
-                    Supports JPG, PNG, WebP (max 10MB each)
+                    Supports JPG, PNG, WebP (max 10MB each) • Multiple files supported
                   </p>
                 </div>
                 
@@ -333,19 +387,65 @@ export default function AddProductPage() {
                   type="button"
                   className="inline-flex items-center px-6 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition-colors"
                 >
-                  Choose Files
+                  Choose Multiple Files
                 </button>
               </div>
             </div>
             
+            {/* Preview selected files */}
             {selectedFiles.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {selectedFiles.map((file, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-                    <span className="text-sm text-white/80">{file.name}</span>
-                    <span className="text-xs text-white/50">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                  </div>
-                ))}
+              <div className="mt-6">
+                <p className="text-sm text-white/70 mb-3">New Images to Upload ({selectedFiles.length}):</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                  {selectedFiles.map((file, index) => (
+                    <div key={index} className="relative group">
+                      <div className="aspect-square rounded-lg overflow-hidden bg-white/5 border border-white/20">
+                        <img 
+                          src={URL.createObjectURL(file)} 
+                          alt={`New image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newFiles = selectedFiles.filter((_, i) => i !== index);
+                          setSelectedFiles(newFiles);
+                        }}
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500 hover:bg-red-600 rounded-full p-1"
+                      >
+                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+                        </svg>
+                      </button>
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-2 truncate">
+                        {file.name}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="space-y-2">
+                  {selectedFiles.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                      <span className="text-sm text-white/80 truncate flex-1">{file.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-white/50">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newFiles = selectedFiles.filter((_, i) => i !== index);
+                            setSelectedFiles(newFiles);
+                          }}
+                          className="text-red-400 hover:text-red-300 p-1"
+                        >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

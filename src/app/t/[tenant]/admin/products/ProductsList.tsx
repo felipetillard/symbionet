@@ -26,7 +26,7 @@ export default function ProductsList({ products, tenantSlug }: { products: Produ
         return (
           <li key={p.id} className="py-4 flex items-center gap-4">
             {/* Product Image */}
-            <div className="w-16 h-16 rounded-lg overflow-hidden bg-white/5 flex-shrink-0">
+            <div className="w-16 h-16 rounded-lg overflow-hidden bg-white/5 flex-shrink-0 relative">
               <img 
                 src={img} 
                 alt={p.name}
@@ -35,6 +35,12 @@ export default function ProductsList({ products, tenantSlug }: { products: Produ
                   e.currentTarget.src = "/placeholder-3x4.png";
                 }}
               />
+              {/* Show indicator if multiple images */}
+              {images.length > 1 && (
+                <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded-full">
+                  +{images.length - 1}
+                </div>
+              )}
             </div>
             
             {/* Product Info */}
