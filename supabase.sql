@@ -111,4 +111,31 @@ create policy if not exists "admins manage orders" on public.orders for all usin
 create or replace function public.get_tenant_id_by_slug(slug_input text)
 returns uuid language sql stable as $$
   select id from public.tenants where slug = slug_input;
-$$; 
+$$;
+
+-- Allow an authenticated user to create a tenant for themselves and become admin
+create or replace function public.create_tenant_self(p_name text, p_slug text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_tenant_id uuid;
+begin
+  if v_user_id is null then
+    raise exception 'Not authenticated';
+  end if;
+
+  insert into public.tenants (name, slug)
+  values (p_name, p_slug)
+  returning id into v_tenant_id;
+
+  insert into public.tenant_members (tenant_id, user_id, role)
+  values (v_tenant_id, v_user_id, 'admin');
+end;
+$$;
+
+revoke all on function public.create_tenant_self(text, text) from public;
+grant execute on function public.create_tenant_self(text, text) to authenticated; 

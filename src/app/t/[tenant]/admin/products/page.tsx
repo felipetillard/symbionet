@@ -32,7 +32,8 @@ export default async function ProductsAdminPage({ params, searchParams }: { para
     .maybeSingle();
 
   if (!member) {
-    redirect(`/auth/login?next=/t/${tenantSlug}/admin/products`);
+    // Avoid login loop: send authenticated users without membership to onboarding
+    redirect(`/onboarding?prefillSlug=${tenantSlug}&prefillName=${encodeURIComponent(tenant.name || "My Store")}`);
   }
 
   const { data: products } = await supabase
