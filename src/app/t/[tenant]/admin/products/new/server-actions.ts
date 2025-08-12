@@ -145,7 +145,7 @@ export async function addProductAction(tenantSlug: string, formData: FormData) {
       console.log(`Successfully uploaded file ${index + 1}: ${file.name}`);
       
     } catch (error) {
-      console.error(`Exception uploading file ${file.name}:`, error);
+      console.error(`Exception uploading file ${file.name}:`, error);x
       uploadErrors.push(`${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }

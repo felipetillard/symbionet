@@ -1,11 +1,12 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import StorefrontClient from "./StorefrontClient";
 
 export default async function TenantShopPage({ params }: { params: Promise<{ tenant: string }> }) {
   const { tenant } = await params;
   const supabase = await createSupabaseServerClient();
   const { data: tenantRow } = await supabase
     .from("tenants")
-    .select("id, name, slug")
+    .select("id, name, slug, whatsapp_number")
     .eq("slug", tenant)
     .single();
 
@@ -14,8 +15,9 @@ export default async function TenantShopPage({ params }: { params: Promise<{ ten
   const [{ data: products }, { data: authUser }] = await Promise.all([
     supabase
       .from("products")
-      .select("id, name, price, images, created_at")
+      .select("id, name, price, images, inventory_count, description, created_at")
       .eq("tenant_id", tenantId ?? "00000000-0000-0000-0000-000000000000")
+      .eq("status", "active")
       .order("created_at", { ascending: false }),
     supabase.auth.getUser(),
   ]);
@@ -35,47 +37,71 @@ export default async function TenantShopPage({ params }: { params: Promise<{ ten
     <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#0b1224] to-[#0a0f1f] text-white px-6 py-8">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">{tenantRow?.name || "Shop"}</h1>
+          <div>
+            <h1 className="text-3xl font-bold">{tenantRow?.name || "Shop"}</h1>
+            <p className="text-white/60 mt-1">Browse products and order via WhatsApp</p>
+          </div>
           {isAdmin ? (
-            <a
-              href={`/t/${tenant}/admin/products/new`}
-              className="inline-flex items-center justify-center h-10 px-4 rounded-lg bg-[#1e3c6c] hover:bg-[#244a84] transition text-white text-sm font-bold"
-            >
-              + Add new
-            </a>
+            <div className="flex items-center gap-3">
+              <a
+                href={`/t/${tenant}/admin/settings`}
+                className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all text-white text-sm font-medium"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Settings
+              </a>
+              <a
+                href={`/t/${tenant}/admin/products`}
+                className="inline-flex items-center justify-center h-10 px-4 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition text-white text-sm font-medium"
+              >
+                Manage Products
+              </a>
+            </div>
           ) : (
             <a
               href={`/auth/login?next=/t/${tenant}/admin/products`}
-              className="text-sm font-semibold text-[#9ec1ff] hover:underline"
+              className="text-sm font-semibold text-white/60 hover:text-white transition"
             >
               Admin login
             </a>
           )}
         </div>
 
-        <div className="bg-white/5 backdrop-blur rounded-2xl p-4 md:p-6 border border-white/10 shadow-2xl">
-          {!products || products.length === 0 ? (
-            <div className="text-white/70 text-sm">
-              No products yet. {isAdmin && <a className="underline" href={`/t/${tenant}/admin/products/new`}>Add your first product</a>}.
+        {/* WhatsApp Status Alert for Admin */}
+        {isAdmin && !tenantRow?.whatsapp_number && (
+          <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              <div>
+                <h3 className="text-orange-400 font-medium mb-1">WhatsApp Checkout Not Configured</h3>
+                <p className="text-orange-300/80 text-sm mb-3">
+                  Customers cannot place orders until you configure your WhatsApp number.
+                </p>
+                <a
+                  href={`/t/${tenant}/admin/settings`}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 border border-orange-500/30 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Configure Now
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
             </div>
-          ) : (
-            <ul className="divide-y divide-white/10">
-              {products.map((p) => {
-                const images = (p.images as Array<{ url: string; path?: string }> | null) || [];
-                const img = images[0]?.url || "/placeholder-3x4.png";
-                return (
-                  <li key={p.id} className="py-3 flex items-center gap-4">
-                    <div className="w-12 h-16 rounded-md bg-cover bg-center" style={{ backgroundImage: `url('${img}')` }} />
-                    <div className="flex-1">
-                      <div className="font-medium">{p.name}</div>
-                      <div className="text-xs text-white/60">{new Date(p.created_at as string).toLocaleDateString()}</div>
-                    </div>
-                    <div className="text-sm text-white/80 w-24">${Number((p as unknown as { price: number }).price).toFixed(2)}</div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+          </div>
+        )}
+
+        <div className="bg-white/5 backdrop-blur rounded-3xl p-6 border border-white/10">
+          <StorefrontClient 
+            products={products || []}
+            whatsappNumber={tenantRow?.whatsapp_number || null}
+            storeName={tenantRow?.name || "Shop"}
+          />
         </div>
       </div>
     </div>
