@@ -105,6 +105,31 @@ create policy if not exists "admins manage orders" on public.orders for all usin
   )
 );
 
+-- Allow authenticated users to insert products for their tenants
+create policy if not exists "authenticated users can insert products for their tenants" on public.products 
+for insert 
+to authenticated 
+with check (
+  exists (
+    select 1 from public.tenant_members tm
+    where tm.tenant_id = products.tenant_id 
+    and tm.user_id = auth.uid() 
+    and tm.role in ('admin', 'staff')
+  )
+);
+
+-- Allow authenticated users to read tenants where they are members
+create policy if not exists "authenticated users can read their tenants" on public.tenants
+for select
+to authenticated
+using (
+  exists (
+    select 1 from public.tenant_members tm
+    where tm.tenant_id = tenants.id 
+    and tm.user_id = auth.uid()
+  )
+);
+
 -- Manage tenant_members only by service role (no policies) or explicit admin function
 
 -- Allow users to read their own tenant memberships
