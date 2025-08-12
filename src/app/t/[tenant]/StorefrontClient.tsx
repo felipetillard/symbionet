@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 type Product = {
   id: string;
@@ -25,6 +27,8 @@ type StorefrontClientProps = {
 export default function StorefrontClient({ products, whatsappNumber, storeName }: StorefrontClientProps) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
+  const params = useParams();
+  const tenantSlug = params.tenant as string;
 
   const addToCart = (product: Product) => {
     if (product.inventory_count <= 0) return;
@@ -147,105 +151,127 @@ export default function StorefrontClient({ products, whatsappNumber, storeName }
           return (
             <div 
               key={product.id} 
-              className={`bg-white/5 backdrop-blur rounded-2xl p-4 border border-white/10 transition-all hover:bg-white/10 ${
+              className={`bg-white/5 backdrop-blur rounded-2xl border border-white/10 transition-all hover:bg-white/10 ${
                 isOutOfStock ? 'opacity-60 grayscale' : ''
               }`}
             >
-              {/* Product Image */}
-              <div className="aspect-square rounded-xl overflow-hidden bg-white/5 mb-4 relative">
-                <img 
-                  src={img} 
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = "/placeholder-3x4.png";
-                  }}
-                />
-                {isOutOfStock && (
-                  <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-xl">
-                    <div className="bg-white/20 text-white text-sm font-bold px-3 py-1 rounded-full">
-                      OUT OF STOCK
+              {/* Clickable Product Area */}
+              <Link 
+                href={`/t/${tenantSlug}/product/${product.id}`}
+                className="block p-4 pb-2"
+              >
+                {/* Product Image */}
+                <div className="aspect-square rounded-xl overflow-hidden bg-white/5 mb-4 relative">
+                  <img 
+                    src={img} 
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder-3x4.png";
+                    }}
+                  />
+                  {isOutOfStock && (
+                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-xl">
+                      <div className="bg-white/20 text-white text-sm font-bold px-3 py-1 rounded-full">
+                        OUT OF STOCK
+                      </div>
                     </div>
-                  </div>
-                )}
-                {images.length > 1 && (
-                  <div className="absolute top-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded-full font-medium">
-                    +{images.length - 1} photos
-                  </div>
-                )}
-              </div>
-              
-              {/* Product Info */}
-              <div className="space-y-3">
-                <div>
-                  <h3 className={`font-semibold text-lg ${isOutOfStock ? 'text-white/40' : 'text-white'}`}>
-                    {product.name}
-                  </h3>
-                  {product.description && (
-                    <p className="text-white/60 text-sm mt-1 line-clamp-2">
-                      {product.description}
-                    </p>
+                  )}
+                  {images.length > 1 && (
+                    <div className="absolute top-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded-full font-medium">
+                      +{images.length - 1} photos
+                    </div>
                   )}
                 </div>
                 
-                <div className="flex items-center justify-between">
-                  <div className={`text-xl font-bold ${isOutOfStock ? 'text-white/40' : 'text-white'}`}>
-                    ${product.price.toFixed(2)}
+                {/* Product Info */}
+                <div className="space-y-3">
+                  <div>
+                    <h3 className={`font-semibold text-lg ${isOutOfStock ? 'text-white/40' : 'text-white'}`}>
+                      {product.name}
+                    </h3>
+                    {product.description && (
+                      <p className="text-white/60 text-sm mt-1 line-clamp-2">
+                        {product.description}
+                      </p>
+                    )}
                   </div>
-                  <div className={`text-sm ${isOutOfStock ? 'text-white/40' : 'text-white/60'}`}>
-                    Stock: {product.inventory_count}
+                  
+                  <div className="flex items-center justify-between">
+                    <div className={`text-xl font-bold ${isOutOfStock ? 'text-white/40' : 'text-white'}`}>
+                      ${product.price.toFixed(2)}
+                    </div>
+                    <div className={`text-sm ${isOutOfStock ? 'text-white/40' : 'text-white/60'}`}>
+                      Stock: {product.inventory_count}
+                    </div>
                   </div>
                 </div>
+              </Link>
+              
+              {/* Action Area (Add to Cart) */}
+              <div className="px-4 pb-4">
                 
-                {/* Add to Cart / Quantity Controls */}
-                {!isOutOfStock && whatsappNumber ? (
-                  cartItem ? (
-                    <div className="flex items-center gap-3">
+                  {/* Add to Cart / Quantity Controls */}
+                  {!isOutOfStock && whatsappNumber ? (
+                    cartItem ? (
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            updateQuantity(product.id, cartItem.quantity - 1);
+                          }}
+                          className="w-8 h-8 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full flex items-center justify-center transition-colors"
+                        >
+                          <span className="text-white">−</span>
+                        </button>
+                        <span className="text-white font-medium w-8 text-center">
+                          {cartItem.quantity}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            updateQuantity(product.id, cartItem.quantity + 1);
+                          }}
+                          disabled={cartItem.quantity >= product.inventory_count}
+                          className="w-8 h-8 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <span className="text-white">+</span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            removeFromCart(product.id);
+                          }}
+                          className="ml-auto text-red-400 hover:text-red-300 text-sm"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
                       <button
-                        onClick={() => updateQuantity(product.id, cartItem.quantity - 1)}
-                        className="w-8 h-8 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full flex items-center justify-center transition-colors"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          addToCart(product);
+                        }}
+                        className="w-full h-12 bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 rounded-lg font-medium text-green-300 transition-all duration-200 flex items-center justify-center gap-2"
                       >
-                        <span className="text-white">−</span>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m-.4-5L3 3m2 10h10a2 2 0 002-2m-10 2v10a2 2 0 01-2-2v-8a2 2 0 012-2h8" />
+                        </svg>
+                        Add to Cart
                       </button>
-                      <span className="text-white font-medium w-8 text-center">
-                        {cartItem.quantity}
-                      </span>
-                      <button
-                        onClick={() => updateQuantity(product.id, cartItem.quantity + 1)}
-                        disabled={cartItem.quantity >= product.inventory_count}
-                        className="w-8 h-8 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <span className="text-white">+</span>
-                      </button>
-                      <button
-                        onClick={() => removeFromCart(product.id)}
-                        className="ml-auto text-red-400 hover:text-red-300 text-sm"
-                      >
-                        Remove
-                      </button>
+                    )
+                  ) : !whatsappNumber ? (
+                    <div className="text-center p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+                      <p className="text-orange-300 text-sm">Checkout not available</p>
                     </div>
                   ) : (
-                    <button
-                      onClick={() => addToCart(product)}
-                      className="w-full h-12 bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 rounded-lg font-medium text-green-300 transition-all duration-200 flex items-center justify-center gap-2"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m-.4-5L3 3m2 10h10a2 2 0 002-2m-10 2v10a2 2 0 01-2-2v-8a2 2 0 012-2h8" />
-                      </svg>
-                      Add to Cart
-                    </button>
-                  )
-                ) : !whatsappNumber ? (
-                  <div className="text-center p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
-                    <p className="text-orange-300 text-sm">Checkout not available</p>
-                  </div>
-                ) : (
-                  <div className="text-center p-3 bg-white/5 border border-white/10 rounded-lg">
-                    <p className="text-white/40 text-sm">Out of Stock</p>
-                  </div>
-                )}
+                    <div className="text-center p-3 bg-white/5 border border-white/10 rounded-lg">
+                      <p className="text-white/40 text-sm">Out of Stock</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
           );
         })}
       </div>
