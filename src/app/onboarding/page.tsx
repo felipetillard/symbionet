@@ -48,18 +48,18 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
       return (
         <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#0b1224] to-[#0a0f1f] text-white flex items-center justify-center p-6">
           <div className="max-w-md w-full space-y-4 text-center bg-white/5 backdrop-blur rounded-2xl p-6 border border-white/10">
-            <h1 className="text-xl font-bold">Store Already Exists</h1>
+            <h1 className="text-xl font-bold">La Tienda Ya Existe</h1>
             <p className="text-white/80">
-              A store with the name &ldquo;{slug}&rdquo; already exists and belongs to another user.
+              Una tienda con el nombre &ldquo;{slug}&rdquo; ya existe y pertenece a otro usuario.
             </p>
             <p className="text-white/80">
-              Please choose a different store name or contact the store owner for access.
+              Por favor elige un nombre de tienda diferente o contacta al propietario para obtener acceso.
             </p>
             <Link 
               className="inline-block mt-4 px-4 py-2 bg-[#1e3c6c] hover:bg-[#244a84] rounded-lg transition"
               href="/"
             >
-              Go Back
+              Volver
             </Link>
           </div>
         </div>
@@ -72,10 +72,10 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
       return (
         <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#0b1224] to-[#0a0f1f] text-white flex items-center justify-center p-6">
           <div className="max-w-md w-full space-y-3 text-center bg-white/5 backdrop-blur rounded-2xl p-6 border border-white/10">
-            <h1 className="text-xl font-bold">Onboarding error</h1>
+            <h1 className="text-xl font-bold">Error de configuración</h1>
             <p className="text-white/80">{error.message}</p>
             <Link className="inline-block mt-4 px-4 py-2 bg-[#1e3c6c] hover:bg-[#244a84] rounded-lg transition" href="/">
-              Back home
+              Volver al inicio
             </Link>
           </div>
         </div>

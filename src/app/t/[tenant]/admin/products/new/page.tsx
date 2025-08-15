@@ -153,7 +153,7 @@ export default function AddProductPage() {
             </svg>
           </button>
           <h1 className="text-xl font-semibold">
-            {isEditing ? "Edit Product" : "Add New Product"}
+            {isEditing ? "Editar Producto" : "Agregar Nuevo Producto"}
           </h1>
           <div className="w-10" />
         </div>
@@ -178,10 +178,10 @@ export default function AddProductPage() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-white/80 mb-2">Product Name *</label>
+                <label className="block text-sm font-medium text-white/80 mb-2">Nombre del Producto *</label>
                 <input
                   name="name"
-                  placeholder="Enter product name"
+                  placeholder="Ingresa el nombre del producto"
                   defaultValue={product?.name || ""}
                   disabled={isSubmitting}
                   required
@@ -190,10 +190,10 @@ export default function AddProductPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">Brand</label>
+                <label className="block text-sm font-medium text-white/80 mb-2">Marca</label>
                 <input
                   name="brand"
-                  placeholder="Enter brand"
+                  placeholder="Ingresa la marca"
                   defaultValue={product?.brand || ""}
                   disabled={isSubmitting}
                   className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
@@ -201,10 +201,10 @@ export default function AddProductPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">Size</label>
+                <label className="block text-sm font-medium text-white/80 mb-2">Tamaño</label>
                 <input
                   name="size"
-                  placeholder="Enter size"
+                  placeholder="Ingresa el tamaño"
                   defaultValue={product?.size || ""}
                   disabled={isSubmitting}
                   className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
@@ -212,10 +212,10 @@ export default function AddProductPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">Product Code</label>
+                <label className="block text-sm font-medium text-white/80 mb-2">Código del Producto</label>
                 <input
                   name="code"
-                  placeholder="Enter product code"
+                  placeholder="Ingresa el código del producto"
                   defaultValue={product?.code || ""}
                   disabled={isSubmitting}
                   className="w-full h-12 px-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
@@ -223,7 +223,7 @@ export default function AddProductPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">Price *</label>
+                <label className="block text-sm font-medium text-white/80 mb-2">Precio *</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/50">$</span>
                   <input
@@ -241,7 +241,7 @@ export default function AddProductPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">Inventory Count</label>
+                <label className="block text-sm font-medium text-white/80 mb-2">Cantidad en Inventario</label>
                 <input
                   name="inventory_count"
                   type="number"
@@ -264,10 +264,10 @@ export default function AddProductPage() {
             
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">Description</label>
+                <label className="block text-sm font-medium text-white/80 mb-2">Descripción</label>
                                   <textarea
                     name="description"
-                    placeholder="Describe your product..."
+                    placeholder="Describe tu producto..."
                     defaultValue={product?.description || ""}
                     disabled={isSubmitting}
                     rows={4}
@@ -276,10 +276,10 @@ export default function AddProductPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">Details</label>
+                <label className="block text-sm font-medium text-white/80 mb-2">Detalles</label>
                 <textarea 
                   name="details" 
-                  placeholder="Additional details, specifications, features..."
+                  placeholder="Detalles adicionales, especificaciones, características..."
                   defaultValue={product?.details || ""}
                   disabled={isSubmitting}
                   rows={4}
@@ -291,7 +291,7 @@ export default function AddProductPage() {
                 <label className="block text-sm font-medium text-white/80 mb-2">Extras</label>
                 <textarea 
                   name="extras" 
-                  placeholder="Care instructions, warranty, additional information..."
+                  placeholder="Instrucciones de cuidado, garantía, información adicional..."
                   defaultValue={product?.extras || ""}
                   disabled={isSubmitting}
                   rows={3}
@@ -305,20 +305,20 @@ export default function AddProductPage() {
           <div className="bg-white/5 backdrop-blur rounded-2xl p-6 border border-white/10">
             <h2 className="text-lg font-semibold mb-6 flex items-center">
               <div className="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
-              Product Images
+              Imágenes del Producto
             </h2>
 
             {/* Show existing images if editing */}
             {isEditing && product?.images && product.images.length > 0 && (
               <div className="mb-6">
-                <p className="text-sm text-white/70 mb-3">Current Images ({product.images.length}):</p>
+                <p className="text-sm text-white/70 mb-3">Imágenes Actuales ({product.images.length}):</p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   {product.images.map((image, index) => (
                     <div key={index} className="relative group">
                       <div className="aspect-square rounded-lg overflow-hidden bg-white/5">
                         <img 
                           src={image.url} 
-                          alt={`Product image ${index + 1}`}
+                          alt={`Imagen del producto ${index + 1}`}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -466,7 +466,7 @@ export default function AddProductPage() {
                   {isEditing ? "Updating Product..." : "Adding Product..."}
                 </>
               ) : (
-                isEditing ? "Update Product" : "Add Product"
+                isEditing ? "Actualizar Producto" : "Agregar Producto"
               )}
             </button>
           </div>

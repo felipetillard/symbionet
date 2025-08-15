@@ -19,7 +19,7 @@ function SubmitButton() {
       disabled={pending}
       className="w-full h-12 rounded-lg bg-[#1e3c6c] hover:bg-[#244a84] transition font-bold disabled:opacity-60 disabled:cursor-not-allowed"
     >
-      {pending ? "Creating..." : "Create store"}
+      {pending ? "Creando..." : "Crear tienda"}
     </button>
   );
 }
@@ -68,7 +68,7 @@ export default function SignupForm() {
   }, []);
 
   const strength = useMemo(() => passwordStrength(password), [password]);
-  const strengthText = ["Too weak", "Weak", "Okay", "Good", "Strong"][strength] || "";
+  const strengthText = ["Muy débil", "Débil", "Aceptable", "Buena", "Fuerte"][strength] || "";
   const strengthColor = ["bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-emerald-500", "bg-emerald-600"][strength] || "bg-transparent";
 
   return (
@@ -79,12 +79,12 @@ export default function SignupForm() {
         </div>
       )}
       <div>
-        <label className="block text-sm mb-1 text-white/80">Store name</label>
+        <label className="block text-sm mb-1 text-white/80">Nombre de la tienda</label>
         <input
           name="tenantName"
           value={tenantName}
           onChange={(e)=>setTenantName(e.target.value)}
-          placeholder="Acme Boutique"
+          placeholder="Boutique Acme"
           className="form-input w-full rounded-lg bg-white/10 text-white h-12 p-4 border-none placeholder:text-white/50"
           required
           aria-invalid={Boolean(state?.fieldErrors?.tenantName)}
@@ -95,7 +95,7 @@ export default function SignupForm() {
         )}
       </div>
       <div>
-        <label className="block text-sm mb-1 text-white/80">Slug</label>
+        <label className="block text-sm mb-1 text-white/80">Identificador</label>
         <div className="flex items-center gap-2">
           <span className="px-3 py-2 rounded-lg bg-white/10 text-white/70 text-sm">/t/</span>
           <input
@@ -116,14 +116,14 @@ export default function SignupForm() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm mb-1 text-white/80">Email</label>
+          <label className="block text-sm mb-1 text-white/80">Correo electrónico</label>
           <input
             name="email"
             type="email"
             inputMode="email"
             value={email}
             onChange={(e)=>onEmailChange(e.target.value)}
-            placeholder="you@acme.com"
+            placeholder="tu@acme.com"
             className="form-input w-full rounded-lg bg-white/10 text-white h-12 p-4 border-none placeholder:text-white/50"
             required
             aria-invalid={Boolean(state?.fieldErrors?.email)}
@@ -135,7 +135,7 @@ export default function SignupForm() {
           )}
         </div>
         <div>
-          <label className="block text-sm mb-1 text-white/80">Password</label>
+          <label className="block text-sm mb-1 text-white/80">Contraseña</label>
           <input
             type="password"
             name="password"
@@ -161,7 +161,7 @@ export default function SignupForm() {
         </div>
       </div>
       <SubmitButton />
-      <p className="text-xs text-white/60">By continuing you agree to our Terms and Privacy Policy.</p>
+      <p className="text-xs text-white/60">Al continuar aceptas nuestros Términos y Política de Privacidad.</p>
     </form>
   );
 } 

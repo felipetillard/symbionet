@@ -90,7 +90,7 @@ export async function addProductAction(tenantSlug: string, formData: FormData) {
 
   // Get tenant and verify user has access
   const { data: tenant } = await supabase.from("tenants").select("id, slug").eq("slug", tenantSlug).single();
-  if (!tenant) throw new Error("Tenant not found");
+  if (!tenant) throw new Error("Tienda no encontrada");
 
   // Check if user is a member of this tenant
   const { data: membership } = await supabase
@@ -101,7 +101,7 @@ export async function addProductAction(tenantSlug: string, formData: FormData) {
     .single();
   
   if (!membership) {
-    throw new Error("You don't have permission to create products for this tenant");
+    throw new Error("No tienes permisos para crear productos en esta tienda");
   }
 
   // Handle file uploads (we'll need to update RLS policies for storage)
@@ -157,7 +157,7 @@ export async function addProductAction(tenantSlug: string, formData: FormData) {
     // If we have some uploads but also some errors, continue but warn
     // If ALL uploads failed and we tried to upload files, throw an error
     if (uploaded.length === 0 && validFiles.length > 0) {
-      throw new Error(`All image uploads failed: ${uploadErrors.join(', ')}`);
+      throw new Error(`Todas las subidas de imágenes fallaron: ${uploadErrors.join(', ')}`);
     }
   }
 
@@ -178,7 +178,7 @@ export async function addProductAction(tenantSlug: string, formData: FormData) {
   });
   
   if (insertError) {
-    throw new Error(`Failed to create product: ${insertError.message}`);
+    throw new Error(`Error al crear producto: ${insertError.message}`);
   }
 
   revalidatePath(`/t/${tenantSlug}/admin/products`);
@@ -195,7 +195,7 @@ export async function getProductAction(tenantSlug: string, productId: string) {
 
   // Get tenant and verify user has access
   const { data: tenant } = await supabase.from("tenants").select("id, slug").eq("slug", tenantSlug).single();
-  if (!tenant) throw new Error("Tenant not found");
+  if (!tenant) throw new Error("Tienda no encontrada");
 
   // Check if user is a member of this tenant
   const { data: membership } = await supabase
@@ -206,7 +206,7 @@ export async function getProductAction(tenantSlug: string, productId: string) {
     .single();
   
   if (!membership) {
-    throw new Error("You don't have permission to access products for this tenant");
+    throw new Error("No tienes permisos para acceder a productos de esta tienda");
   }
 
   // Get the product
@@ -218,7 +218,7 @@ export async function getProductAction(tenantSlug: string, productId: string) {
     .single();
 
   if (productError) {
-    throw new Error("Product not found");
+    throw new Error("Producto no encontrado");
   }
 
   return product;
@@ -254,7 +254,7 @@ export async function updateProductAction(tenantSlug: string, productId: string,
 
   // Get tenant and verify user has access
   const { data: tenant } = await supabase.from("tenants").select("id, slug").eq("slug", tenantSlug).single();
-  if (!tenant) throw new Error("Tenant not found");
+  if (!tenant) throw new Error("Tienda no encontrada");
 
   // Check if user is a member of this tenant
   const { data: membership } = await supabase
@@ -265,7 +265,7 @@ export async function updateProductAction(tenantSlug: string, productId: string,
     .single();
   
   if (!membership) {
-    throw new Error("You don't have permission to update products for this tenant");
+    throw new Error("No tienes permisos para actualizar productos de esta tienda");
   }
 
   // Handle file uploads (if any new files)
@@ -321,7 +321,7 @@ export async function updateProductAction(tenantSlug: string, productId: string,
     // If we have some uploads but also some errors, continue but warn
     // If ALL uploads failed and we tried to upload files, throw an error
     if (uploaded.length === 0 && validFiles.length > 0) {
-      throw new Error(`All image uploads failed: ${uploadErrors.join(', ')}`);
+      throw new Error(`Todas las subidas de imágenes fallaron: ${uploadErrors.join(', ')}`);
     }
   }
 
@@ -358,7 +358,7 @@ export async function updateProductAction(tenantSlug: string, productId: string,
     .eq("tenant_id", tenant.id);
   
   if (updateError) {
-    throw new Error(`Failed to update product: ${updateError.message}`);
+    throw new Error(`Error al actualizar producto: ${updateError.message}`);
   }
 
   revalidatePath(`/t/${tenantSlug}/admin/products`);
@@ -374,7 +374,7 @@ export async function cleanupProductImagesAction(tenantSlug: string, productId: 
 
   // Get tenant and verify user has access
   const { data: tenant } = await supabase.from("tenants").select("id, slug").eq("slug", tenantSlug).single();
-  if (!tenant) throw new Error("Tenant not found");
+  if (!tenant) throw new Error("Tienda no encontrada");
 
   // Check if user is a member of this tenant
   const { data: membership } = await supabase
@@ -385,7 +385,7 @@ export async function cleanupProductImagesAction(tenantSlug: string, productId: 
     .single();
   
   if (!membership) {
-    throw new Error("You don't have permission to update products for this tenant");
+    throw new Error("No tienes permisos para actualizar productos de esta tienda");
   }
 
   // Get existing product
@@ -397,7 +397,7 @@ export async function cleanupProductImagesAction(tenantSlug: string, productId: 
     .single();
 
   if (!existingProduct) {
-    throw new Error("Product not found");
+    throw new Error("Producto no encontrado");
   }
 
   // Clean up the images
@@ -413,7 +413,7 @@ export async function cleanupProductImagesAction(tenantSlug: string, productId: 
     .eq("tenant_id", tenant.id);
 
   if (updateError) {
-    throw new Error(`Failed to cleanup product images: ${updateError.message}`);
+    throw new Error(`Error al limpiar imágenes del producto: ${updateError.message}`);
   }
 
   revalidatePath(`/t/${tenantSlug}/admin/products`);
@@ -430,7 +430,7 @@ export async function reduceInventoryAction(tenantSlug: string, productId: strin
 
   // Get tenant and verify user has access
   const { data: tenant } = await supabase.from("tenants").select("id, slug").eq("slug", tenantSlug).single();
-  if (!tenant) throw new Error("Tenant not found");
+  if (!tenant) throw new Error("Tienda no encontrada");
 
   // Check if user is a member of this tenant
   const { data: membership } = await supabase
@@ -441,7 +441,7 @@ export async function reduceInventoryAction(tenantSlug: string, productId: strin
     .single();
   
   if (!membership) {
-    throw new Error("You don't have permission to update products for this tenant");
+    throw new Error("No tienes permisos para actualizar productos de esta tienda");
   }
 
   // Get current product to check inventory
@@ -453,7 +453,7 @@ export async function reduceInventoryAction(tenantSlug: string, productId: strin
     .single();
 
   if (!product) {
-    throw new Error("Product not found");
+    throw new Error("Producto no encontrado");
   }
 
   // Calculate new inventory (don't go below 0)
@@ -470,7 +470,7 @@ export async function reduceInventoryAction(tenantSlug: string, productId: strin
     .eq("tenant_id", tenant.id);
 
   if (updateError) {
-    throw new Error(`Failed to reduce inventory: ${updateError.message}`);
+    throw new Error(`Error al reducir inventario: ${updateError.message}`);
   }
 
   revalidatePath(`/t/${tenantSlug}/admin/products`);

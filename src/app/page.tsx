@@ -19,21 +19,21 @@ export default function Home() {
         <section className="grid md:grid-cols-2 gap-10 items-center pt-10">
           <div className="space-y-5">
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
-              Launch your multi-tenant store in minutes
+              Lanza tu tienda multi-inquilino en minutos
             </h1>
             <p className="text-white/70 text-lg">
-              Beautiful storefront, tenant admin, and product management. Powered by Next.js and Supabase.
+              Escaparate hermoso, administración de inquilinos y gestión de productos. Impulsado por Next.js y Supabase.
             </p>
             <ul className="grid grid-cols-2 gap-3 text-sm text-white/80">
-              <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-emerald-400"/>Tenant-isolated data</li>
-              <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-emerald-400"/>Admin uploads & inventory</li>
-              <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-emerald-400"/>RLS-secure by default</li>
-              <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-emerald-400"/>Tailwind UI kit</li>
+              <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-emerald-400"/>Datos aislados por inquilino</li>
+              <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-emerald-400"/>Subidas de admin e inventario</li>
+              <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-emerald-400"/>Seguro con RLS por defecto</li>
+              <li className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-emerald-400"/>Kit de UI Tailwind</li>
             </ul>
           </div>
 
           <div className="bg-white/5 backdrop-blur rounded-2xl p-6 md:p-8 border border-white/10 shadow-2xl">
-            <h2 className="text-xl font-semibold mb-4">Create your store</h2>
+            <h2 className="text-xl font-semibold mb-4">Crea tu tienda</h2>
             <SignupForm />
           </div>
         </section>

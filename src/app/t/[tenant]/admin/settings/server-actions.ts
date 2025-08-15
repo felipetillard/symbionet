@@ -21,7 +21,7 @@ export async function updateWhatsAppNumberAction(tenantSlug: string, whatsappNum
   // Simplified validation - just check if it starts with + and has reasonable length
   if (whatsappNumber && (!whatsappNumber.startsWith('+') || whatsappNumber.length < 8 || whatsappNumber.length > 20)) {
     console.log(`[WhatsApp Update] Validation failed for number: "${whatsappNumber}"`);
-    throw new Error("Invalid phone number format. Please use international format with country code (e.g., +1234567890)");
+    throw new Error("Formato de número telefónico inválido. Por favor usa formato internacional con código de país (ej. +1234567890)");
   }
 
   console.log(`[WhatsApp Update] Phone number validation passed`);
@@ -35,12 +35,12 @@ export async function updateWhatsAppNumberAction(tenantSlug: string, whatsappNum
 
   if (tenantError) {
     console.log(`[WhatsApp Update] Tenant query error:`, tenantError);
-    throw new Error(`Tenant query failed: ${tenantError.message}`);
+    throw new Error(`Error al consultar tienda: ${tenantError.message}`);
   }
 
   if (!tenant) {
     console.log(`[WhatsApp Update] Tenant not found: ${tenantSlug}`);
-    throw new Error("Tenant not found");
+    throw new Error("Tienda no encontrada");
   }
 
   console.log(`[WhatsApp Update] Tenant found: ${tenant.id}`);
@@ -55,12 +55,12 @@ export async function updateWhatsAppNumberAction(tenantSlug: string, whatsappNum
   
   if (membershipError) {
     console.log(`[WhatsApp Update] Membership query error:`, membershipError);
-    throw new Error(`Membership check failed: ${membershipError.message}`);
+    throw new Error(`Error al verificar membresía: ${membershipError.message}`);
   }
 
   if (!membership) {
     console.log(`[WhatsApp Update] No membership found for user ${user.id} in tenant ${tenant.id}`);
-    throw new Error("You don't have permission to update settings for this tenant");
+    throw new Error("No tienes permisos para actualizar configuración de esta tienda");
   }
 
   console.log(`[WhatsApp Update] User has role: ${membership.role}`);
@@ -78,7 +78,7 @@ export async function updateWhatsAppNumberAction(tenantSlug: string, whatsappNum
 
   if (updateError) {
     console.log(`[WhatsApp Update] Update failed:`, updateError);
-    throw new Error(`Failed to update WhatsApp number: ${updateError.message}`);
+    throw new Error(`Error al actualizar número de WhatsApp: ${updateError.message}`);
   }
 
   console.log(`[WhatsApp Update] Update response:`, updateData);

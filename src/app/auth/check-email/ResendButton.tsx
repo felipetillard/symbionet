@@ -16,7 +16,7 @@ export default function ResendButton({ email }: { email: string }) {
     const { error } = await supabase.auth.resend({ type: "signup", email });
     setLoading(false);
     if (error) setError(error.message);
-    else setMessage("Email resent. Please check your inbox and spam folder.");
+    else setMessage("Correo reenviado. Por favor revisa tu bandeja de entrada y carpeta de spam.");
   }
 
   return (
@@ -27,7 +27,7 @@ export default function ResendButton({ email }: { email: string }) {
         className="w-full h-10 rounded-lg bg-gray-100 text-[#101319] font-medium hover:bg-gray-200 disabled:opacity-60"
         type="button"
       >
-        {loading ? "Resending..." : "Resend email"}
+        {loading ? "Reenviando..." : "Reenviar correo"}
       </button>
       {message && <p className="text-sm text-emerald-700">{message}</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}

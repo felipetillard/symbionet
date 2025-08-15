@@ -33,7 +33,7 @@ function LoginForm() {
     const { data: auth } = await supabase.auth.getUser();
     
     if (!auth.user) {
-      setError("Authentication failed");
+      setError("Error de autenticación");
       setLoading(false);
       return;
     }
@@ -71,7 +71,7 @@ function LoginForm() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#0b1224] to-[#0a0f1f] text-white flex items-center justify-center px-6 py-10">
       <div className="w-full max-w-md bg-white/5 backdrop-blur rounded-2xl p-6 md:p-8 border border-white/10 shadow-2xl">
-        <h1 className="text-xl font-semibold mb-4">Sign in</h1>
+        <h1 className="text-xl font-semibold mb-4">Iniciar sesión</h1>
         {error && (
           <div className="mb-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-200 text-sm p-3">
             {error}
@@ -79,19 +79,19 @@ function LoginForm() {
         )}
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm mb-1 text-white/80">Email</label>
+            <label className="block text-sm mb-1 text-white/80">Correo electrónico</label>
             <input
               value={email}
               onChange={(e)=>setEmail(e.target.value)}
               className="form-input w-full h-12 rounded-lg bg-white/10 text-white p-4 border-none placeholder:text-white/50"
-              placeholder="you@acme.com"
+              placeholder="tu@acme.com"
               type="email"
               autoComplete="email"
               required
             />
           </div>
           <div>
-            <label className="block text-sm mb-1 text-white/80">Password</label>
+            <label className="block text-sm mb-1 text-white/80">Contraseña</label>
             <input
               value={password}
               onChange={(e)=>setPassword(e.target.value)}
@@ -107,7 +107,7 @@ function LoginForm() {
             disabled={loading}
             className="w-full h-12 rounded-lg bg-[#1e3c6c] hover:bg-[#244a84] transition font-bold disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? "Iniciando sesión..." : "Iniciar sesión"}
           </button>
         </form>
       </div>
@@ -117,7 +117,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-white">Loading…</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-white">Cargando…</div>}>
       <LoginForm />
     </Suspense>
   );

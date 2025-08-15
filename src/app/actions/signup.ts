@@ -11,12 +11,12 @@ type SignupState = {
 };
 
 const onboardingSchema = z.object({
-  tenantName: z.string().min(2, "Please enter a store name"),
+  tenantName: z.string().min(2, "Por favor ingresa un nombre de tienda"),
   tenantSlug: z
     .string()
-    .min(2, "Slug must be at least 2 chars")
-    .max(32, "Slug must be <= 32 chars")
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers and dashes"),
+    .min(2, "El identificador debe tener al menos 2 caracteres")
+    .max(32, "El identificador debe tener máximo 32 caracteres")
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Usa letras minúsculas, números y guiones"),
   email: z.preprocess(
     (v) =>
       String(v || "")
@@ -24,12 +24,12 @@ const onboardingSchema = z.object({
         .replace(/[\u200B-\u200D\uFEFF]/g, "") // zero-width chars
         .replace(/\s+/g, "") // all whitespace
         .toLowerCase(),
-    z.string().email("Enter a valid email")
+    z.string().email("Ingresa un correo electrónico válido")
   ),
   password: z
     .string()
-    .min(PASSWORD_MIN_LENGTH, `Password must be at least ${PASSWORD_MIN_LENGTH} characters`)
-    .refine((v) => /[a-z]/.test(v) && /[0-9]/.test(v), "Include letters and numbers"),
+    .min(PASSWORD_MIN_LENGTH, `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres`)
+    .refine((v) => /[a-z]/.test(v) && /[0-9]/.test(v), "Incluye letras y números"),
 });
 
 export async function signUpAndCreateTenantAction(
